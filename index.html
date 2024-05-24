@@ -35,6 +35,7 @@
     <table id="storiesTable">
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Title</th>
                 <th>URL</th>
                 <th>Text</th>
@@ -45,15 +46,18 @@
 
     <script>
         const showStoriesUrl = 'https://hacker-news.firebaseio.com/v0/showstories.json';
-        
+
         async function fetchShowStories() {
             try {
                 const response = await fetch(showStoriesUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const storyIds = await response.json();
-                
-                // Limiting to first 10 stories for this example
-                const limitedStoryIds = storyIds.slice(0, 10);
-                fetchStoryDetails(limitedStoryIds);
+                console.log('Story IDs:', storyIds);
+
+                // Fetch and display details for all story IDs
+                fetchStoryDetails(storyIds);
             } catch (error) {
                 console.error('Error fetching show stories:', error);
             }
@@ -61,15 +65,23 @@
 
         async function fetchStoryDetails(ids) {
             const tbody = document.querySelector('#storiesTable tbody');
+            let storyCount = 1;
             for (let id of ids) {
                 try {
                     const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     const story = await response.json();
+                    console.log('Story details:', story);
                     
                     const row = document.createElement('tr');
                     
+                    const idCell = document.createElement('td');
+                    idCell.textContent = storyCount++;
+                    
                     const titleCell = document.createElement('td');
-                    titleCell.textContent = story.title;
+                    titleCell.textContent = story.title || 'No title available';
                     
                     const urlCell = document.createElement('td');
                     const link = document.createElement('a');
@@ -81,6 +93,7 @@
                     const textCell = document.createElement('td');
                     textCell.textContent = story.text || 'No text available';
                     
+                    row.appendChild(idCell);
                     row.appendChild(titleCell);
                     row.appendChild(urlCell);
                     row.appendChild(textCell);
