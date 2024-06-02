@@ -1,104 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hacker News</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hacker News</title>
+  <link rel="stylesheet" href="https://matcha.mizu.sh/styles/@syntax-highlighting/mod.css">
+  <link rel="stylesheet" href="https://matcha.mizu.sh/@syntax-highlighting.css">
+  <link rel="stylesheet" href="matcha.css">
+  <style>
+  body {
+      font-family: sans-serif; /* Let matcha.css handle font details */
+      margin-left:0 5px;/* Remove default margin for a cleaner layout */
+    }
+    .custom-table th {
+            background-color: #34495e;
+            color: #ffffff;
+    }
+    h1 {
+            margin-left: 40rem;
+            color: #2c3e50;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .link {
-            color: #007BFF;
-            text-decoration: none;
-        }
-        .link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    
+    table {
+      width: 100%; /* Ensure table doesn't overflow container */
+      border-collapse: collapse;
+      /* Remove table border as dividers will take its place */
+    }
+    th, td {
+      padding: 15px;
+      text-align: left; /* Align content to the left for readability */
+      position: relative; /* Needed for pseudo-element positioning */
+    }
+    th {
+      background-color: #34495e ; /* Lighter green for table header */
+      color: white; /* Darker text for better contrast */
+    }
+    .link {
+      color: #2e8b57; /* Matcha green for links */
+    }
+    .link:hover {
+      text-decoration: underline;
+      color: #1b5e20; /* Darker green on hover for clarity */
+    }
+
+    /* Style the column dividers (pseudo-elements) */
+    td:after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px; /* Adjust width for divider thickness */
+      right: 0; /* Place dividers between columns */
+      background-color: #ddd; /* Divider color */
+    }
+
+    /* Hide the last divider (for the rightmost column) */
+    th:last-child:after,
+    td:last-child:after {
+      display: none;
+    }
+
+    /* Alternate row colors (gray and white) */
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  </style>
 </head>
 <body>
-    <h1>Hacker News</h1>
-    <table id="storiesTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>URL</th>
-                <th>Text</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+  <h1 class="matcha-title">Hacker News</h1>
+  <table id="storiesTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>URL</th>
+        <th>Text</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    <script>
-        const showStoriesUrl = 'https://hacker-news.firebaseio.com/v0/showstories.json';
+  <script>
+    const showStoriesUrl = 'https://hacker-news.firebaseio.com/v0/showstories.json';
 
-        async function fetchShowStories() {
-            try {
-                const response = await fetch(showStoriesUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const storyIds = await response.json();
-                console.log('Story IDs:', storyIds);
-
-                // Fetch and display details for all story IDs
-                fetchStoryDetails(storyIds);
-            } catch (error) {
-                console.error('Error fetching show stories:', error);
-            }
+    async function fetchShowStories() {
+      try {
+        const response = await fetch(showStoriesUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const storyIds = await response.json();
+        console.log('Story IDs:', storyIds);
 
-        async function fetchStoryDetails(ids) {
-            const tbody = document.querySelector('#storiesTable tbody');
-            let storyCount = 1;
-            for (let id of ids) {
-                try {
-                    const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const story = await response.json();
-                    console.log('Story details:', story);
-                    
-                    const row = document.createElement('tr');
-                    
-                    const idCell = document.createElement('td');
-                    idCell.textContent = storyCount++;
-                    
-                    const titleCell = document.createElement('td');
-                    titleCell.textContent = story.title || 'No title available';
-                    
-                    const urlCell = document.createElement('td');
-                    const link = document.createElement('a');
-                    link.className = 'link';
-                    link.href = story.url || '#';
-                    link.target = '_blank'; // Ensure the link opens in a new tab
-                    link.textContent = story.url || 'No URL available';
-                    urlCell.appendChild(link);
-                    
-                    const textCell = document.createElement('td');
-                    textCell.textContent = story.text || 'No text available';
-                    
-                    row.appendChild(idCell);
-                    row.appendChild(titleCell);
-                    row.appendChild(urlCell);
-                    row.appendChild(textCell);
-                    
-                    tbody.appendChild(row);
+        // Fetch and display details for all story IDs
+        fetchStoryDetails(storyIds);
+      } catch (error) {
+        console.error('Error fetching show stories:', error);
+      }
+    }
+
+    async function fetchStoryDetails(ids) {
+      const tbody = document.querySelector('#storiesTable tbody');
+      let storyCount = 1;
+      for (let id of ids) {
+        try {
+          const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const story = await response.json();
+          console.log('Story details:', story);
+
+          const row = document.createElement('tr');
+
+          const idCell = document.createElement('td');
+          idCell.textContent = storyCount++;
+
+          const titleCell = document.createElement('td');
+          titleCell.textContent = story.title || 'No title available';
+
+          const urlCell = document.createElement('td');
+          const link = document.createElement('a');
+          link.className = 'link';
+          link.href = story.url || '#';
+          link.target = '_blank'; // Ensure the link opens in a new tab
+          link.textContent = story.url || 'No URL available';
+          urlCell.appendChild(link);
+
+          const textCell = document.createElement('td');
+          textCell.textContent = story.text || 'No text available';
+
+          row.appendChild(idCell);
+          row.appendChild(titleCell);
+          row.appendChild(urlCell);
+          row.appendChild(textCell);
+
+          tbody.appendChild(row);
                 } catch (error) {
                     console.error('Error fetching story details:', error);
                 }
