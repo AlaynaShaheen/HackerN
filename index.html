@@ -8,19 +8,18 @@
   <link rel="stylesheet" href="https://matcha.mizu.sh/@syntax-highlighting.css">
   <link rel="stylesheet" href="matcha.css">
   <style>
-  body {
+    body {
       font-family: sans-serif; /* Let matcha.css handle font details */
-      margin-left:0 5px;/* Remove default margin for a cleaner layout */
+      margin-left: 0 5px; /* Remove default margin for a cleaner layout */
     }
     .custom-table th {
-            background-color: #34495e;
-            color: #ffffff;
+      background-color: #34495e;
+      color: #ffffff;
     }
     h1 {
-            margin-left: 40rem;
-            color: #2c3e50;
-        }
-    
+      margin-left: 40rem;
+      color: #2c3e50;
+    }
     table {
       width: 100%; /* Ensure table doesn't overflow container */
       border-collapse: collapse;
@@ -32,7 +31,7 @@
       position: relative; /* Needed for pseudo-element positioning */
     }
     th {
-      background-color: #34495e ; /* Lighter green for table header */
+      background-color: #34495e; /* Lighter green for table header */
       color: white; /* Darker text for better contrast */
     }
     .link {
@@ -42,7 +41,6 @@
       text-decoration: underline;
       color: #1b5e20; /* Darker green on hover for clarity */
     }
-
     /* Style the column dividers (pseudo-elements) */
     td:after {
       content: "";
@@ -53,13 +51,11 @@
       right: 0; /* Place dividers between columns */
       background-color: #ddd; /* Divider color */
     }
-
     /* Hide the last divider (for the rightmost column) */
     th:last-child:after,
     td:last-child:after {
       display: none;
     }
-
     /* Alternate row colors (gray and white) */
     tr:nth-child(even) {
       background-color: #f2f2f2;
@@ -82,6 +78,13 @@
 
   <script>
     const showStoriesUrl = 'https://hacker-news.firebaseio.com/v0/showstories.json';
+
+    // Helper function to decode HTML entities
+    function decodeHtmlEntities(str) {
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = str;
+      return textarea.value;
+    }
 
     async function fetchShowStories() {
       try {
@@ -117,7 +120,7 @@
           idCell.textContent = storyCount++;
 
           const titleCell = document.createElement('td');
-          titleCell.textContent = story.title || 'No title available';
+          titleCell.textContent = story.title ? decodeHtmlEntities(story.title) : 'No title available';
 
           const urlCell = document.createElement('td');
           const link = document.createElement('a');
@@ -128,7 +131,7 @@
           urlCell.appendChild(link);
 
           const textCell = document.createElement('td');
-          textCell.textContent = story.text || 'No text available';
+          textCell.textContent = story.text ? decodeHtmlEntities(story.text.replace(/<\/?[^>]+(>|$)/g, "")) : 'No text available';
 
           row.appendChild(idCell);
           row.appendChild(titleCell);
@@ -136,14 +139,13 @@
           row.appendChild(textCell);
 
           tbody.appendChild(row);
-                } catch (error) {
-                    console.error('Error fetching story details:', error);
-                }
-            }
+        } catch (error) {
+          console.error('Error fetching story details:', error);
         }
+      }
+    }
 
-        fetchShowStories();
-    </script>
-
+    fetchShowStories();
+  </script>
 </body>
 </html>
